@@ -5,12 +5,16 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "./App.tsx";
 
-import "./styles/main.scss";
+import "./main.css";
+
+import { ThemeProvider } from "./components/theme-provider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <ThemeProvider defaultTheme="dark" storageKey="tsks-ui-theme">
+        <App />
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
 );
