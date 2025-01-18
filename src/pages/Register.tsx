@@ -21,13 +21,17 @@ import { TbChevronLeft } from "react-icons/tb";
 
 /* Validation
 ============= */
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { registerAccountValidationSchema } from "@/validation/register";
 
 /* Form
 ======= */
 import { useForm } from "react-hook-form";
+
+/* Helpers
+========== */
+import { registerUser } from "@/helpers/registerUser";
 
 function Register() {
   const form = useForm<z.infer<typeof registerAccountValidationSchema>>({
@@ -35,10 +39,21 @@ function Register() {
     mode: "onBlur",
   });
 
-  const onSubmit = (
+  const onSubmit = async (
     values: z.infer<typeof registerAccountValidationSchema>
   ) => {
-    console.log(values);
+    try {
+      const response = await registerUser({
+        full_name: values.fullName,
+        email: values.email,
+        password: values.password,
+        avatar_url: "",
+      });
+
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
