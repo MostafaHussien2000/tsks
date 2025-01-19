@@ -14,8 +14,7 @@ export const login = async ({ email, password }: userLoginProps) => {
       });
 
     if (authError) {
-      console.error("Error Signing In: ", authError.message);
-      return { success: false, message: authError.message };
+      throw new Error(authError.message);
     }
 
     const userId = authData.user?.id;
@@ -26,13 +25,12 @@ export const login = async ({ email, password }: userLoginProps) => {
       .eq("id", userId);
 
     if (profileError) {
-      console.error("Error getting profile data: ", profileError.message);
-      return { success: false, message: profileError.message };
+      throw new Error(profileError.message);
     }
 
-    return { success: true, authData, profileData };
+    return { success: true, authData, profileData: profileData[0] };
   } catch (err) {
-    console.error(err);
-    return { success: false, message: err };
+    console.log((err as { message: string }).message);
+    throw new Error((err as { message: string }).message);
   }
 };

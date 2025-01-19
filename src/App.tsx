@@ -1,9 +1,6 @@
-/* React Hooks */
-import { useState } from "react";
-
 /* React Router DOM
 =================== */
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 /* Pages
 ======== */

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 /* React Router DOM
 =================== */
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 /* ChadCN Components
 ==================== */
@@ -35,11 +35,21 @@ import { useForm } from "react-hook-form";
 
 /* Helpers
 ========== */
-import { registerUser } from "@/helpers/registerUser";
+import { register } from "@/helpers/register";
+
+/* Redux
+======== */
+import { useAppSelector } from "@/app/hooks";
 
 function Register() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  if (isAuthenticated) return <Navigate to="/dashboard" />;
+
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof registerAccountValidationSchema>>({
     resolver: zodResolver(registerAccountValidationSchema),
@@ -57,17 +67,16 @@ function Register() {
   ) => {
     setLoading(true);
     try {
-      const response = await registerUser({
+      await register({
         full_name: values.fullName,
         email: values.email,
         password: values.password,
         avatar_url: "",
       });
 
-      console.log(response);
+      navigate("/login");
     } catch (err) {
-      console.error(err);
-      setError(JSON.stringify(err));
+      setError((err as { message: string })?.message);
     } finally {
       setLoading(false);
     }
@@ -167,6 +176,7 @@ function Register() {
             >
               {loading ? "Registering your account ..." : "Create Account"}
             </Button>
+            {error && <FormMessage children={error} />}
           </form>
         </Form>
       </section>

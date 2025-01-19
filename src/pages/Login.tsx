@@ -4,7 +4,7 @@ import { useState } from "react";
 
 /* React Router DOM
 =================== */
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 /* ChadCN Components
 ==================== */
@@ -33,29 +33,22 @@ import { loginValidationSchema } from "@/validation/login";
 ======= */
 import { useForm } from "react-hook-form";
 
-/* Helpers
-========== */
-// import { login } from "@/helpers/login";
-
 /* Redux
 ======== */
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { login } from "@/features/auth/auth-slice";
 
 function Login() {
-  const { error } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, error } = useAppSelector((state) => state.auth);
+
   const dispatch = useAppDispatch();
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const formSubmit = async (values: z.infer<typeof loginValidationSchema>) => {
+  const onSubmit = async (values: z.infer<typeof loginValidationSchema>) => {
     setLoading(true);
     try {
-      const response = await dispatch(
-        login({ email: values.email, password: values.password })
-      );
-
-      console.log(response.payload);
+      await dispatch(login({ email: values.email, password: values.password }));
     } catch (err) {
       console.error(err);
     } finally {
@@ -72,6 +65,8 @@ function Login() {
     },
   });
 
+  if (isAuthenticated) return <Navigate to="/dashboard" />;
+
   return (
     <main id="login-page">
       <section className="container flex flex-col justify-start items-center mx-auto">
@@ -84,7 +79,7 @@ function Login() {
         <h1 className="text-3xl font-bold">Welcome Back !</h1>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(formSubmit)}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 w-full max-w-96"
           >
             <FormField
