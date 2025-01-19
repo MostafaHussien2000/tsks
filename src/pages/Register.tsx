@@ -1,3 +1,7 @@
+/* React Hooks
+============== */
+import { useState } from "react";
+
 /* React Router DOM
 =================== */
 import { Link } from "react-router-dom";
@@ -34,14 +38,24 @@ import { useForm } from "react-hook-form";
 import { registerUser } from "@/helpers/registerUser";
 
 function Register() {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
   const form = useForm<z.infer<typeof registerAccountValidationSchema>>({
     resolver: zodResolver(registerAccountValidationSchema),
     mode: "onBlur",
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = async (
     values: z.infer<typeof registerAccountValidationSchema>
   ) => {
+    setLoading(true);
     try {
       const response = await registerUser({
         full_name: values.fullName,
@@ -53,6 +67,9 @@ function Register() {
       console.log(response);
     } catch (err) {
       console.error(err);
+      setError(JSON.stringify(err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,8 +160,12 @@ function Register() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Create Account
+            <Button
+              type="submit"
+              className="w-full"
+              variant={!loading ? "default" : "defaultLoading"}
+            >
+              {loading ? "Registering your account ..." : "Create Account"}
             </Button>
           </form>
         </Form>

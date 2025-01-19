@@ -1,3 +1,7 @@
+/* React Hooks
+============== */
+import { useState } from "react";
+
 /* React Router DOM
 =================== */
 import { Link } from "react-router-dom";
@@ -31,26 +35,42 @@ import { useForm } from "react-hook-form";
 
 /* Helpers
 ========== */
-import { login } from "@/helpers/login";
+// import { login } from "@/helpers/login";
+
+/* Redux
+======== */
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { login } from "@/features/auth/auth-slice";
 
 function Login() {
+  const { error } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const formSubmit = async (values: z.infer<typeof loginValidationSchema>) => {
+    setLoading(true);
+    try {
+      const response = await dispatch(
+        login({ email: values.email, password: values.password })
+      );
+
+      console.log(response.payload);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const form = useForm<z.infer<typeof loginValidationSchema>>({
     resolver: zodResolver(loginValidationSchema),
     mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
-
-  const onSubmit = async (values: z.infer<typeof loginValidationSchema>) => {
-    try {
-      const response = await login({
-        email: values.email,
-        password: values.password,
-      });
-
-      console.log(response);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <main id="login-page">
@@ -64,7 +84,7 @@ function Login() {
         <h1 className="text-3xl font-bold">Welcome Back !</h1>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(formSubmit)}
             className="space-y-8 w-full max-w-96"
           >
             <FormField
@@ -101,9 +121,14 @@ function Login() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Login
+            <Button
+              type="submit"
+              className="w-full"
+              variant={!loading ? "default" : "defaultLoading"}
+            >
+              {loading ? "Logging you in ..." : "Login"}
             </Button>
+            {error && <FormMessage children={error} />}
           </form>
         </Form>
       </section>

@@ -10,7 +10,13 @@ import { Link } from "react-router-dom";
 ==================== */
 import { Button, buttonVariants } from "@/components/ui/button.tsx";
 
+/* Redux
+======== */
+import { useAppSelector } from "@/app/hooks";
+
 function Home() {
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
   return (
     <main id="home-page">
       <div className="container lg:mx-90% mx-auto">
@@ -20,17 +26,37 @@ function Home() {
             <span className="font-bold text-xl">Tsks</span>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/login" className={buttonVariants({ variant: "ghost" })}>
-              {/* <Button variant={"ghost"}>Login</Button> */}
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className={buttonVariants({ variant: "default" })}
-            >
-              {/* <Button>Register</Button> */}
-              Register
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <p>
+                  Welcome{" "}
+                  <span className="text-primary font-semibold">
+                    {user?.name || "Unknown"}
+                  </span>
+                </p>
+                <Link
+                  to="/dashboard"
+                  className={buttonVariants({ variant: "default" })}
+                >
+                  Go to Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={buttonVariants({ variant: "ghost" })}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className={buttonVariants({ variant: "default" })}
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </nav>
         <section className="p-4 mt-40 grid grid-cols-2">
